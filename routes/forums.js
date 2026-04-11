@@ -1,7 +1,7 @@
 const express = require('express');
 const router  = express.Router();
 const pool    = require('../db');
-const { authenticate } = require('../middleware/auth');
+const { authenticate } = require('../middleware/authMiddleware');
 
 router.get('/course/:id', authenticate, async (req, res) => {
   try {

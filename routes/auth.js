@@ -3,7 +3,14 @@ const router  = express.Router();
 const bcrypt  = require('bcrypt');
 const jwt     = require('jsonwebtoken');
 const pool    = require('../db');
-const { authenticate } = require('../middleware/auth');
+
+// testing if route is working
+/*  router.get('/whoami', (req, res) => {
+  res.json({ message: "I am the ROUTES file" });
+}); 
+ */
+
+const { authenticate } = require('../middleware/authMiddleware');
 
 router.post('/register', async (req, res) => {
   const { name, email, password, user_type, department, date_enrolled } = req.body;
@@ -17,26 +24,27 @@ router.post('/register', async (req, res) => {
   try {
     const hashed = await bcrypt.hash(password, 10);
 
-    const result = await pool.query(
-      `INSERT INTO "User" (name, email, password, user_type)
-       VALUES ($1, $2, $3, $4) RETURNING user_id`,
+    const [result] = await pool.query(
+      `INSERT INTO User (name, email, password, user_type)
+       VALUES (?, ?, ?, ?)`,
       [name, email, hashed, user_type]
     );
-    const user_id = result.rows[0].user_id;
+    const user_id = result.insertId;
+    console.log("Newly created User ID:", user_id);
 
     if (user_type === 'Admin') {
-      await pool.query(`INSERT INTO "Admin" (user_id) VALUES ($1)`, [user_id]);
+      await pool.query(`INSERT INTO Admin (user_id) VALUES (?)`, [user_id]);
     } else if (user_type === 'Lecturer') {
       if (!department)
         return res.status(400).json({ error: 'department is required for Lecturer' });
       await pool.query(
-        `INSERT INTO "Lecturer" (user_id, department) VALUES ($1, $2)`,
+        `INSERT INTO Lecturer (user_id, department) VALUES (?, ?)`,
         [user_id, department]
       );
     } else if (user_type === 'Student') {
       const enrolled = date_enrolled || new Date().toISOString().split('T')[0];
       await pool.query(
-        `INSERT INTO "Student" (user_id, date_enrolled) VALUES ($1, $2)`,
+        `INSERT INTO Student (user_id, date_enrolled) VALUES (?, ?)`,
         [user_id, enrolled]
       );
     }
@@ -57,7 +65,7 @@ router.post('/login', async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT * FROM "User" WHERE email = $1`, [email]
+      `SELECT * FROM User WHERE email = ?`, [email]
     );
     if (result.rows.length === 0)
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -83,7 +91,7 @@ router.post('/login', async (req, res) => {
 router.get('/me', authenticate, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT user_id, name, email, user_type FROM "User" WHERE user_id = $1`,
+      `SELECT user_id, name, email, user_type FROM User WHERE user_id = ?`,
       [req.user.user_id]
     );
     if (result.rows.length === 0)

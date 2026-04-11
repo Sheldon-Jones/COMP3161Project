@@ -1,7 +1,7 @@
 const express = require('express');
 const router  = express.Router();
 const pool    = require('../db');
-const { authenticate, requireRole } = require('../middleware/auth');
+const { authenticate, requireRole } = require('../middleware/authMiddleware');
 
 router.use(authenticate, requireRole('Admin'));
 
