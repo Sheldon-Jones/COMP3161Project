@@ -6,8 +6,8 @@ const { authenticate, requireRole } = require('../middleware/authMiddleware');
 // GET /api/courses — all courses
 router.get('/', authenticate, async (req, res) => {
   try {
-    const result = await pool.query(`SELECT * FROM Course ORDER BY course_id`);
-    res.json(result.rows);
+    const [rows] = await pool.query(`SELECT * FROM Course ORDER BY course_id`);
+    res.json(rows);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -21,7 +21,7 @@ router.post('/', authenticate, requireRole('Admin'), async (req, res) => {
       `INSERT INTO Course (course_id, course_name, description) VALUES (?, ?, ?)`,
       [course_id, course_name, description]
     );
-    res.status(201).json({ message: 'Course created', course_id });
+    res.status(201).json({ message: 'Course created', course_id, course_name });
   } catch (err) {
     if (err.code === '23505') return res.status(409).json({ error: 'Course ID already exists' });
     res.status(500).json({ error: err.message });
@@ -31,26 +31,26 @@ router.post('/', authenticate, requireRole('Admin'), async (req, res) => {
 // GET /api/courses/student/:id — courses for a student
 router.get('/student/:id', authenticate, async (req, res) => {
   try {
-    const result = await pool.query(
+    const [rows] = await pool.query(
       `SELECT c.* FROM Course c
        JOIN Assigned_To a ON c.course_id = a.course_id
        WHERE a.user_id = ?`,
       [req.params.id]
     );
-    res.json(result.rows);
+    res.json(rows);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // GET /api/courses/lecturer/:id — courses for a lecturer
 router.get('/lecturer/:id', authenticate, async (req, res) => {
   try {
-    const result = await pool.query(
+    const [rows] = await pool.query(
       `SELECT c.* FROM Course c
        JOIN Maintains m ON c.course_id = m.course_id
        WHERE m.user_id = ?`,
       [req.params.id]
     );
-    res.json(result.rows);
+    res.json(rows);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

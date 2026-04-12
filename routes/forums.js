@@ -5,11 +5,11 @@ const { authenticate } = require('../middleware/authMiddleware');
 
 router.get('/course/:id', authenticate, async (req, res) => {
   try {
-    const result = await pool.query(
+    const [rows] = await pool.query(
       `SELECT * FROM "Discussion_Forum" WHERE course_id = $1`,
       [req.params.id]
     );
-    res.json(result.rows);
+    res.json(rows);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -17,18 +17,18 @@ router.post('/course/:id', authenticate, async (req, res) => {
   const { course_name, description } = req.body;
   if (!course_name) return res.status(400).json({ error: 'course_name is required' });
   try {
-    const result = await pool.query(
+    const [rows] = await pool.query(
       `INSERT INTO "Discussion_Forum" (course_id, course_name, description)
        VALUES ($1, $2, $3) RETURNING *`,
       [req.params.id, course_name, description]
     );
-    res.status(201).json(result.rows[0]);
+    res.status(201).json(rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 router.get('/:id/threads', authenticate, async (req, res) => {
   try {
-    const result = await pool.query(
+    const [rows] = await pool.query(
       `SELECT dt.*, u.name AS author_name
        FROM "Discussion_Thread" dt
        JOIN "User" u ON dt.user_id = u.user_id
@@ -36,7 +36,7 @@ router.get('/:id/threads', authenticate, async (req, res) => {
        ORDER BY dt.created_date DESC`,
       [req.params.id]
     );
-    res.json(result.rows);
+    res.json(rows);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -49,12 +49,12 @@ router.post('/:id/threads', authenticate, async (req, res) => {
     );
     if (forum.rows.length === 0) return res.status(404).json({ error: 'Forum not found' });
 
-    const result = await pool.query(
+    const [rows] = await pool.query(
       `INSERT INTO "Discussion_Thread" (course_id, forum_id, user_id, parent_thread_id, course_name, content)
        VALUES ($1, $2, $3, NULL, $4, $5) RETURNING *`,
       [forum.rows[0].course_id, req.params.id, req.user.user_id, course_name, body]
     );
-    res.status(201).json(result.rows[0]);
+    res.status(201).json(rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -71,12 +71,12 @@ router.post('/threads/:id/replies', authenticate, async (req, res) => {
     const { forum_id, course_id } = parent.rows[0];
     const parentId = parent_reply_id || req.params.id;
 
-    const result = await pool.query(
+    const [rows] = await pool.query(
       `INSERT INTO "Discussion_Thread" (course_id, forum_id, user_id, parent_thread_id, course_name, content)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [course_id, forum_id, req.user.user_id, parentId, 'Re: reply', body]
     );
-    res.status(201).json(result.rows[0]);
+    res.status(201).json(rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
