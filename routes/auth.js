@@ -91,13 +91,13 @@ router.post('/login', async (req, res) => {
 
 router.get('/me', authenticate, async (req, res) => {
   try {
-    const result = await pool.query(
+    const [rows] = await pool.query(
       `SELECT user_id, name, email, user_type FROM User WHERE user_id = ?`,
       [req.user.user_id]
     );
-    if (result.rows.length === 0)
+    if (rows.length === 0)
       return res.status(404).json({ error: 'User not found' });
-    res.json(result.rows[0]);
+    res.json(rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not fetch profile' });

@@ -14,13 +14,13 @@ router.get('/course/:id', authenticate, async (req, res) => {
 });
 
 router.post('/course/:id', authenticate, requireRole('Lecturer', 'Admin'), async (req, res) => {
-  const { title, description, due_date, max_grade } = req.body;
-  if (!title || !due_date) return res.status(400).json({ error: 'title and due_date required' });
+  const { course_name, description, due_date, max_grade } = req.body;
+  if (!course_name || !due_date) return res.status(400).json({ error: 'course_name and due_date required' });
   try {
     const result = await pool.query(
-      `INSERT INTO "Assignment" (course_id, title, description, due_date, max_marks)
+      `INSERT INTO "Assignment" (course_id, course_name, description, due_date, max_marks)
        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [req.params.id, title, description, due_date, max_grade || 100]
+      [req.params.id, course_name, description, due_date, max_grade || 100]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }

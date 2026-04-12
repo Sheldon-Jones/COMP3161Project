@@ -22,7 +22,7 @@ router.get('/:userId/events', authenticate, async (req, res) => {
       params.push(date);
     }
 
-    query += ' ORDER BY ce.event_date, ce.title';
+    query += ' ORDER BY ce.event_date, ce.course_name';
 
     const [events] = await pool.query(query, params);
     res.json(events);

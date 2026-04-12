@@ -14,13 +14,13 @@ router.get('/course/:id', authenticate, async (req, res) => {
 });
 
 router.post('/course/:id', authenticate, async (req, res) => {
-  const { title, description } = req.body;
-  if (!title) return res.status(400).json({ error: 'title is required' });
+  const { course_name, description } = req.body;
+  if (!course_name) return res.status(400).json({ error: 'course_name is required' });
   try {
     const result = await pool.query(
-      `INSERT INTO "Discussion_Forum" (course_id, title, description)
+      `INSERT INTO "Discussion_Forum" (course_id, course_name, description)
        VALUES ($1, $2, $3) RETURNING *`,
-      [req.params.id, title, description]
+      [req.params.id, course_name, description]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -41,8 +41,8 @@ router.get('/:id/threads', authenticate, async (req, res) => {
 });
 
 router.post('/:id/threads', authenticate, async (req, res) => {
-  const { title, body } = req.body;
-  if (!title || !body) return res.status(400).json({ error: 'title and body are required' });
+  const { course_name, body } = req.body;
+  if (!course_name || !body) return res.status(400).json({ error: 'course_name and body are required' });
   try {
     const forum = await pool.query(
       `SELECT course_id FROM "Discussion_Forum" WHERE forum_id = $1`, [req.params.id]
@@ -50,9 +50,9 @@ router.post('/:id/threads', authenticate, async (req, res) => {
     if (forum.rows.length === 0) return res.status(404).json({ error: 'Forum not found' });
 
     const result = await pool.query(
-      `INSERT INTO "Discussion_Thread" (course_id, forum_id, user_id, parent_thread_id, title, content)
+      `INSERT INTO "Discussion_Thread" (course_id, forum_id, user_id, parent_thread_id, course_name, content)
        VALUES ($1, $2, $3, NULL, $4, $5) RETURNING *`,
-      [forum.rows[0].course_id, req.params.id, req.user.user_id, title, body]
+      [forum.rows[0].course_id, req.params.id, req.user.user_id, course_name, body]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -72,7 +72,7 @@ router.post('/threads/:id/replies', authenticate, async (req, res) => {
     const parentId = parent_reply_id || req.params.id;
 
     const result = await pool.query(
-      `INSERT INTO "Discussion_Thread" (course_id, forum_id, user_id, parent_thread_id, title, content)
+      `INSERT INTO "Discussion_Thread" (course_id, forum_id, user_id, parent_thread_id, course_name, content)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [course_id, forum_id, req.user.user_id, parentId, 'Re: reply', body]
     );

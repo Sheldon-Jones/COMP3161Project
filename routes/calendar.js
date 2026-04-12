@@ -27,14 +27,14 @@ router.get('/student/:id/date/:date', authenticate, async (req, res) => {
 });
 
 router.post('/course/:id', authenticate, requireRole('Lecturer', 'Admin'), async (req, res) => {
-  const { title, description, event_date, event_type } = req.body;
-  if (!title || !event_date)
-    return res.status(400).json({ error: 'title and event_date are required' });
+  const { course_name, description, event_date, event_type } = req.body;
+  if (!course_name || !event_date)
+    return res.status(400).json({ error: 'course_name and event_date are required' });
   try {
     const result = await pool.query(
-      `INSERT INTO "Calendar_Event" (course_id, title, description, event_date, event_type)
+      `INSERT INTO "Calendar_Event" (course_id, course_name, description, event_date, event_type)
        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [req.params.id, title, description, event_date, event_type]
+      [req.params.id, course_name, description, event_date, event_type]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }

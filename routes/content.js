@@ -22,29 +22,29 @@ router.get('/course/:id', authenticate, async (req, res) => {
 });
 
 router.post('/course/:id/sections', authenticate, requireRole('Lecturer', 'Admin'), async (req, res) => {
-  const { title, position } = req.body;
-  if (!title) return res.status(400).json({ error: 'title is required' });
+  const { course_name, position } = req.body;
+  if (!course_name) return res.status(400).json({ error: 'course_name is required' });
   try {
     const count = await pool.query(
       `SELECT COUNT(*) FROM "Section" WHERE course_id = $1`, [req.params.id]
     );
     const section_num = parseInt(count.rows[0].count) + 1;
     await pool.query(
-      `INSERT INTO "Section" (course_id, section_num, title, sec_order)
+      `INSERT INTO "Section" (course_id, section_num, course_name, sec_order)
        VALUES ($1, $2, $3, $4)`,
-      [req.params.id, section_num, title, position || section_num]
+      [req.params.id, section_num, course_name, position || section_num]
     );
     res.status(201).json({ message: 'Section created', section_num });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 router.put('/sections/:num', authenticate, requireRole('Lecturer', 'Admin'), async (req, res) => {
-  const { title, position, course_id } = req.body;
+  const { course_name, position, course_id } = req.body;
   try {
     await pool.query(
-      `UPDATE "Section" SET title = $1, sec_order = $2
+      `UPDATE "Section" SET course_name = $1, sec_order = $2
        WHERE section_num = $3 AND course_id = $4`,
-      [title, position, req.params.num, course_id]
+      [course_name, position, req.params.num, course_id]
     );
     res.json({ message: 'Section updated' });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -62,13 +62,13 @@ router.delete('/sections/:num', authenticate, requireRole('Lecturer', 'Admin'), 
 });
 
 router.post('/sections/:num/items', authenticate, requireRole('Lecturer', 'Admin'), async (req, res) => {
-  const { title, content_type, url, description, course_id } = req.body;
-  if (!title || !course_id) return res.status(400).json({ error: 'title and course_id are required' });
+  const { course_name, content_type, url, description, course_id } = req.body;
+  if (!course_name || !course_id) return res.status(400).json({ error: 'course_name and course_id are required' });
   try {
     const result = await pool.query(
-      `INSERT INTO "Section_Item" (course_id, section_num, title, type, content)
+      `INSERT INTO "Section_Item" (course_id, section_num, course_name, type, content)
        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [course_id, req.params.num, title, content_type, url || description]
+      [course_id, req.params.num, course_name, content_type, url || description]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }

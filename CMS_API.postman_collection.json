@@ -71,7 +71,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"course_code\": \"CS101\",\n  \"title\": \"Introduction to Computer Science\",\n  \"description\": \"Foundational CS concepts\"\n}"
+              "raw": "{\n  \"course_id\": \"CS101\",\n  \"course_name\": \"Introduction to Computer Science\",\n  \"description\": \"Foundational CS concepts\"\n}"
             }
           }
         },
@@ -178,7 +178,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Midterm Exam\",\n  \"description\": \"Covers modules 1-5\",\n  \"event_date\": \"2025-07-10T09:00:00Z\",\n  \"event_type\": \"exam\"\n}"
+              "raw": "{\n  \"course_name\": \"Midterm Exam\",\n  \"description\": \"Covers modules 1-5\",\n  \"event_date\": \"2025-07-10T09:00:00Z\",\n  \"event_type\": \"exam\"\n}"
             }
           }
         },
@@ -214,7 +214,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"General Discussion\",\n  \"description\": \"Ask anything about the course\"\n}"
+              "raw": "{\n  \"course_name\": \"General Discussion\",\n  \"description\": \"Ask anything about the course\"\n}"
             }
           }
         },
@@ -237,7 +237,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Question about lecture 3\",\n  \"body\": \"Can someone explain the concept from lecture 3?\"\n}"
+              "raw": "{\n  \"course_name\": \"Question about lecture 3\",\n  \"body\": \"Can someone explain the concept from lecture 3?\"\n}"
             }
           }
         },
@@ -303,7 +303,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Module 1: Introduction\",\n  \"description\": \"Getting started\",\n  \"position\": 1\n}"
+              "raw": "{\n  \"course_name\": \"Module 1: Introduction\",\n  \"description\": \"Getting started\",\n  \"position\": 1\n}"
             }
           }
         },
@@ -318,7 +318,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Module 1: Intro (Updated)\",\n  \"position\": 1\n}"
+              "raw": "{\n  \"course_name\": \"Module 1: Intro (Updated)\",\n  \"position\": 1\n}"
             }
           }
         },
@@ -341,7 +341,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Lecture 1 Slides\",\n  \"content_type\": \"slide\",\n  \"url\": \"https://example.com/slides/lec1.pdf\",\n  \"description\": \"Introduction to the topic\",\n  \"position\": 1\n}"
+              "raw": "{\n  \"course_name\": \"Lecture 1 Slides\",\n  \"content_type\": \"slide\",\n  \"url\": \"https://example.com/slides/lec1.pdf\",\n  \"description\": \"Introduction to the topic\",\n  \"position\": 1\n}"
             }
           }
         },
@@ -377,7 +377,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Assignment 1\",\n  \"description\": \"Write a report on sorting algorithms\",\n  \"due_date\": \"2025-07-20T23:59:00Z\",\n  \"max_grade\": 100\n}"
+              "raw": "{\n  \"course_name\": \"Assignment 1\",\n  \"description\": \"Write a report on sorting algorithms\",\n  \"due_date\": \"2025-07-20T23:59:00Z\",\n  \"max_grade\": 100\n}"
             }
           }
         },
