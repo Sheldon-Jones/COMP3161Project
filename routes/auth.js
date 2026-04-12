@@ -58,19 +58,20 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// the route for logging in user account. It requires id and password
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password)
-    return res.status(400).json({ error: 'email and password are required' });
+  const { user_id, password } = req.body;
+  if (!user_id || !password)
+    return res.status(400).json({ error: 'user_id and password are required' });
 
   try {
-    const result = await pool.query(
-      `SELECT * FROM User WHERE email = ?`, [email]
+    const [rows] = await pool.query(      
+      `SELECT * FROM User WHERE user_id = ?`, [user_id]
     );
-    if (result.rows.length === 0)
+    if (rows.length === 0)
       return res.status(401).json({ error: 'Invalid credentials' });
 
-    const user = result.rows[0];
+    const user = rows[0];
     const match = await bcrypt.compare(password, user.password);
     if (!match)
       return res.status(401).json({ error: 'Invalid credentials' });
