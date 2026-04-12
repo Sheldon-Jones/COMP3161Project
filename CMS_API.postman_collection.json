@@ -20,7 +20,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"password\": \"password123\",\n  \"user_type\": \"student\",\n  \"email\": \"jane.doe@example.com\"\n}"
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"password\": \"password123\",\n  \"user_type\": \"Student\",\n  \"email\": \"jane.doe@example.com\"\n}"
             }
           }
         },
