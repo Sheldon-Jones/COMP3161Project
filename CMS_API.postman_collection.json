@@ -83,14 +83,7 @@
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
           }
         },
-        {
-          "name": "Get Single Course",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/courses/1",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
-          }
-        },
+        
         {
           "name": "Get Courses by Student",
           "request": {

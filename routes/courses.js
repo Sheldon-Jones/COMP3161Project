@@ -102,7 +102,7 @@ router.get('/:id/members', authenticate, async (req, res) => {
     );
     const lecturers = await pool.query(
       `SELECT u.user_id, u.name, u.email, 'Lecturer' AS role
-       FROM Use u JOIN Maintains m ON u.user_id = m.user_id
+       FROM User u JOIN Maintains m ON u.user_id = m.user_id
        WHERE m.course_id = ?`,
       [req.params.id]
     );
