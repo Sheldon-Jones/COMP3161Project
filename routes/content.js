@@ -6,13 +6,13 @@ const { authenticate, requireRole } = require('../middleware/authMiddleware');
 router.get('/course/:id', authenticate, async (req, res) => {
   try {
     const sections = await pool.query(
-      `SELECT * FROM "Section" WHERE course_id = $1 ORDER BY sec_order`,
+      `SELECT * FROM Section WHERE course_id = ? ORDER BY sec_order`,
       [req.params.id]
     );
     for (const section of sections.rows) {
       const items = await pool.query(
-        `SELECT * FROM "Section_Item"
-         WHERE course_id = $1 AND section_num = $2`,
+        `SELECT * FROM Section_Item
+         WHERE course_id = ? AND section_num = ?`,
         [req.params.id, section.section_num]
       );
       section.items = items.rows;
@@ -26,12 +26,12 @@ router.post('/course/:id/sections', authenticate, requireRole('Lecturer', 'Admin
   if (!course_name) return res.status(400).json({ error: 'course_name is required' });
   try {
     const count = await pool.query(
-      `SELECT COUNT(*) FROM "Section" WHERE course_id = $1`, [req.params.id]
+      `SELECT COUNT(*) FROM Section WHERE course_id = ?`, [req.params.id]
     );
     const section_num = parseInt(count.rows[0].count) + 1;
     await pool.query(
-      `INSERT INTO "Section" (course_id, section_num, course_name, sec_order)
-       VALUES ($1, $2, $3, $4)`,
+      `INSERT INTO Section (course_id, section_num, course_name, sec_order)
+       VALUES (?, ?, ?, ?)`,
       [req.params.id, section_num, course_name, position || section_num]
     );
     res.status(201).json({ message: 'Section created', section_num });
@@ -42,8 +42,8 @@ router.put('/sections/:num', authenticate, requireRole('Lecturer', 'Admin'), asy
   const { course_name, position, course_id } = req.body;
   try {
     await pool.query(
-      `UPDATE "Section" SET course_name = $1, sec_order = $2
-       WHERE section_num = $3 AND course_id = $4`,
+      `UPDATE Section SET course_name = ?, sec_order = ?
+       WHERE section_num = ? AND course_id = ?`,
       [course_name, position, req.params.num, course_id]
     );
     res.json({ message: 'Section updated' });
@@ -54,7 +54,7 @@ router.delete('/sections/:num', authenticate, requireRole('Lecturer', 'Admin'), 
   const { course_id } = req.body;
   try {
     await pool.query(
-      `DELETE FROM "Section" WHERE section_num = $1 AND course_id = $2`,
+      `DELETE FROM Section WHERE section_num = ? AND course_id = ?`,
       [req.params.num, course_id]
     );
     res.json({ message: 'Section deleted' });
@@ -66,8 +66,8 @@ router.post('/sections/:num/items', authenticate, requireRole('Lecturer', 'Admin
   if (!course_name || !course_id) return res.status(400).json({ error: 'course_name and course_id are required' });
   try {
     const result = await pool.query(
-      `INSERT INTO "Section_Item" (course_id, section_num, course_name, type, content)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      `INSERT INTO Section_Item (course_id, section_num, course_name, type, content)
+       VALUES (?, ?, ?, ?, ?) RETURNING *`,
       [course_id, req.params.num, course_name, content_type, url || description]
     );
     res.status(201).json(result.rows[0]);
@@ -76,7 +76,7 @@ router.post('/sections/:num/items', authenticate, requireRole('Lecturer', 'Admin
 
 router.delete('/items/:id', authenticate, requireRole('Lecturer', 'Admin'), async (req, res) => {
   try {
-    await pool.query(`DELETE FROM "Section_Item" WHERE item_id = $1`, [req.params.id]);
+    await pool.query(`DELETE FROM Section_Item WHERE item_id = ?`, [req.params.id]);
     res.json({ message: 'Item deleted' });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
