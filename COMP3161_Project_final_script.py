@@ -79,7 +79,7 @@ def make_email(name: str) -> str:
             if email not in _seen_emails:
                 _seen_emails.add(email)
                 return email
-    # absolute fallback
+    
     fallback = f"user{len(_seen_emails)}@{domain}"
     _seen_emails.add(fallback)
     return fallback

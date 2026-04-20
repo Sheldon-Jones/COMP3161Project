@@ -1,6 +1,7 @@
 {
   "name": "cms-api",
   "version": "1.0.0",
+  "type": "commonjs",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {

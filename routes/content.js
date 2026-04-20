@@ -67,7 +67,7 @@ router.post('/sections/:num/items', authenticate, requireRole('Lecturer', 'Admin
   try {
     const result = await pool.query(
       `INSERT INTO Section_Item (course_id, section_num, course_name, type, content)
-       VALUES (?, ?, ?, ?, ?) RETURNING *`,
+       VALUES (?, ?, ?, ?, ?) `,
       [course_id, req.params.num, course_name, content_type, url || description]
     );
     res.status(201).json(result.rows[0]);

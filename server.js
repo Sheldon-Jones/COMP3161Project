@@ -1,5 +1,5 @@
-require('dotenv').config()
-require('./db')
+require('dotenv').config();
+require ('./db');
 
 const express = require('express');
 const cors = require('cors');
@@ -53,5 +53,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`CMS API running on port ${PORT}`);
 });
+
+
 
 module.exports = app;

@@ -19,7 +19,7 @@ router.post('/course/:id', authenticate, async (req, res) => {
   try {
     const [rows] = await pool.query(
       `INSERT INTO Discussion_Forum (course_id, course_name, description)
-       VALUES (?, ?, ?) RETURNING *`,
+       VALUES (?, ?, ?) `,
       [req.params.id, course_name, description]
     );
     res.status(201).json(rows[0]);
@@ -51,7 +51,7 @@ router.post('/:id/threads', authenticate, async (req, res) => {
 
     const [rows] = await pool.query(
       `INSERT INTO Discussion_Thread (course_id, forum_id, user_id, parent_thread_id, course_name, content)
-       VALUES (?, ?, ?, NULL, ?, ?) RETURNING *`,
+       VALUES (?, ?, ?, NULL, ?, ?) `,
       [forum.rows[0].course_id, req.params.id, req.user.user_id, course_name, body]
     );
     res.status(201).json(rows[0]);
@@ -73,7 +73,7 @@ router.post('/threads/:id/replies', authenticate, async (req, res) => {
 
     const [rows] = await pool.query(
       `INSERT INTO Discussion_Thread (course_id, forum_id, user_id, parent_thread_id, course_name, content)
-       VALUES (?, ?, ?, ?, ?, ?) RETURNING *`,
+       VALUES (?, ?, ?, ?, ?, ?) `,
       [course_id, forum_id, req.user.user_id, parentId, 'Re: reply', body]
     );
     res.status(201).json(rows[0]);
