@@ -207,7 +207,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"course_name\": \"General Discussion\",\n  \"description\": \"Ask anything about the course\"\n}"
+              "raw": "{\n  \"title\": \"An appropriate title\",\n  \"description\": \"Ask anything about the course\"\n}"
             }
           }
         },
@@ -230,7 +230,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"course_name\": \"Question about lecture 3\",\n  \"body\": \"Can someone explain the concept from lecture 3?\"\n}"
+              "raw": "{\n  \"title\": \"Question about lecture 3\",\n  \"content\": \"Can someone explain the concept from lecture 3?\"\n}"
             }
           }
         },

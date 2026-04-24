@@ -56,14 +56,14 @@ router.get('/:threadId', authenticate, async (req, res) => {
 
 // ─── CREATE THREAD ────────────────────────────────────────────────────────────
 
-// POST /api/threads/forum/:forumId  –  Start a new top-level thread (any authenticated user)
+// POST /api/threads/forum/:forumId  –  Any authenticated user can start a new top-level thread
 router.post('/forum/:forumId', authenticate, async (req, res) => {
   const { forumId }     = req.params;
-  const { course_name, content } = req.body;
+  const { title, content } = req.body;
   const user_id         = req.user.user_id;
 
-  if (!course_name || !content) {
-    return res.status(400).json({ error: 'course_name and content are required' });
+  if (!title || !content) {
+    return res.status(400).json({ error: 'title and content are required' });
   }
 
   try {
@@ -79,9 +79,9 @@ router.post('/forum/:forumId', authenticate, async (req, res) => {
     const course_id = forum[0].course_id;
     const [result]  = await pool.query(
       `INSERT INTO Discussion_Thread
-         (course_id, forum_id, user_id, parent_thread_id, course_name, content)
-       VALUES (?, ?, ?, NULL, ?, ?)`,
-      [course_id, forumId, user_id, course_name, content]
+         (course_id, forum_id, user_id, title, content)
+       VALUES ( ?, ?, ?, ?, ?)`,
+      [course_id, forumId, user_id, title, content]
     );
     res.status(201).json({ message: 'Thread created successfully', thread_id: result.insertId });
   } catch (err) {
@@ -90,10 +90,9 @@ router.post('/forum/:forumId', authenticate, async (req, res) => {
   }
 });
 
-// ─── REPLY TO THREAD ─────────────────────────────────────────────────────────
+// Replying to a thread
 
-// POST /api/threads/:threadId/reply  –  Reply to any thread (supports nested Reddit-style replies)
-router.post('/:threadId/reply', authenticate, async (req, res) => {
+// POST /api/threads/:threadId/reply  –  Reply to any thread 
   const { threadId } = req.params;
   const { content }  = req.body;
   const user_id      = req.user.user_id;
@@ -115,7 +114,7 @@ router.post('/:threadId/reply', authenticate, async (req, res) => {
     const { forum_id, course_id } = parent[0];
     const [result] = await pool.query(
       `INSERT INTO Discussion_Thread
-         (course_id, forum_id, user_id, parent_thread_id, course_name, content)
+         (course_id, forum_id, user_id, threadId, content)
        VALUES (?, ?, ?, ?, NULL, ?)`,
       [course_id, forum_id, user_id, threadId, content]
     );
@@ -124,6 +123,5 @@ router.post('/:threadId/reply', authenticate, async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Failed to add reply' });
   }
-});
 
 module.exports = router;

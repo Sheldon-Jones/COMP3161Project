@@ -14,17 +14,20 @@ router.get('/course/:id', authenticate, async (req, res) => {
 });
 
 router.post('/course/:id', authenticate, async (req, res) => {
-  const { course_name, description } = req.body;
-  if (!course_name) return res.status(400).json({ error: 'course_name is required' });
+  const course_id = req.params.id;
+  const {title, description } = req.body;
+  if (!title) return res.status(400).json({ error: 'title is required' });
   try {
     const [rows] = await pool.query(
-      `INSERT INTO Discussion_Forum (course_id, course_name, description)
+      `INSERT INTO Discussion_Forum (course_id, title, description)
        VALUES (?, ?, ?) `,
-      [req.params.id, course_name, description]
+      [course_id, title, description]
     );
-    res.status(201).json(rows[0]);
+
+    res.status(201).json({ message: "Forum created", forum_id: rows.insertId });
   } catch (err) { res.status(500).json({ error: err.message }); }
-});
+
+  });
 
 router.get('/:id/threads', authenticate, async (req, res) => {
   try {
@@ -40,19 +43,22 @@ router.get('/:id/threads', authenticate, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-router.post('/:id/threads', authenticate, async (req, res) => {
-  const { course_name, body } = req.body;
-  if (!course_name || !body) return res.status(400).json({ error: 'course_name and body are required' });
+router.post('/:id/threads', authenticate, async (req, res) => { //parameter is the forum id
+  const { title, content } = req.body;
+  const forum_id = req.params.id;
+  if (!title || !content) return res.status(400).json({ error: 'course_name and body are required' });
   try {
-    const forum = await pool.query(
-      `SELECT course_id FROM Discussion_Forum WHERE forum_id = ?`, [req.params.id]
+    const [forum] = await pool.query(
+      `SELECT course_id FROM Discussion_Forum WHERE forum_id = ?`, [forum_id]
     );
-    if (forum.rows.length === 0) return res.status(404).json({ error: 'Forum not found' });
+    if (forum.length === 0) 
+      return res.status(404).json({ error: 'Forum not found' });
 
     const [rows] = await pool.query(
-      `INSERT INTO Discussion_Thread (course_id, forum_id, user_id, parent_thread_id, course_name, content)
-       VALUES (?, ?, ?, NULL, ?, ?) `,
-      [forum.rows[0].course_id, req.params.id, req.user.user_id, course_name, body]
+      `INSERT INTO Discussion_Thread
+         (course_id, forum_id, user_id, title, content)
+       VALUES ( ?, ?, ?, ?, ?)`,
+       [course_id, req.params.id, req.user.user_id, title, content]
     );
     res.status(201).json(rows[0]);
   } catch (err) { res.status(500).json({ error: err.message }); }
