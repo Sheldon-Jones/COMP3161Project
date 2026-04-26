@@ -11,6 +11,6 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 
-app.listen(5000, () => {
+app.listen(3000, () => {
   console.log("Server running on port 5000");
 });
