@@ -179,7 +179,7 @@
           "name": "Delete Calendar Event",
           "request": {
             "method": "DELETE",
-            "url": "{{base_url}}/calendar/1",
+            "url": "{{base_url}}/calendar/eventID",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
           }
         }
