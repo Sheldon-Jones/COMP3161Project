@@ -370,7 +370,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"course_name\": \"Assignment 1\",\n  \"description\": \"Write a report on sorting algorithms\",\n  \"due_date\": \"2025-07-20T23:59:00Z\",\n  \"max_grade\": 100\n}"
+              "raw": "{\n  \"course_name\": \"JAM101\", \n  \"title\": \"Assignment 1\",  \n  \"description\": \"Write a report on sorting algorithms\",\n  \"due_date\": \"2025-07-20\", \n  \"max_grade\": 100\n}"
             }
           }
         },
@@ -385,7 +385,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"submission_text\": \"My report on sorting algorithms...\",\n  \"submission_url\": \"https://drive.google.com/my-report\"\n}"
+              "raw": "{\n  \"submission_text\": \"My report on sorting algorithms...\",\n }"
             }
           }
         },
