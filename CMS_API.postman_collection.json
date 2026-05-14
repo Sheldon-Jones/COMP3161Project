@@ -385,7 +385,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"submission_text\": \"My report on sorting algorithms...\",\n }"
+              "raw": "{\n  \"submission_text\": \"My report on sorting algorithms...\"\n }"
             }
           }
         },

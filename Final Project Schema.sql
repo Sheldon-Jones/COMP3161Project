@@ -137,6 +137,7 @@ CREATE TABLE Submission (
 	submission_id INT AUTO_INCREMENT PRIMARY KEY, 
 	user_id INT, 
 	assignment_id INT, 
+    submission_text TEXT,
 	submission_date DATETIME DEFAULT CURRENT_TIMESTAMP, 
 	grade INT,
     

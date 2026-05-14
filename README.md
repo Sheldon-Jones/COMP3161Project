@@ -12,3 +12,10 @@ activate virtual environment
 browse to project directory. eg. cd Desktop/ProjectCOMP3161
 upload postman file to postman website
 start server in command: node server.js
+
+some test values:
+student user: name = John Tester  id=100089    password = 123456
+lecturer/admin: name = Group Admin   id = 100088
+
+course created: course_id= JAM101
+Assignment submitted for JAM101: assignment_id = 809

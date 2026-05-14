@@ -70,13 +70,13 @@ router.post('/:id/grade/:student_id', authenticate, requireRole('Lecturer', 'Adm
     );
     if (result.affectedRows === 0)
       return res.status(404).json({ error: 'Submission not found' });
-    res.json({ message: 'Grade submitted' });
+    res.json({ message: 'Grade submitted', grade: grade });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 router.get('/student/:id/averages', authenticate, async (req, res) => {
   try {
-    const result = await pool.query(
+    const [rows] = await pool.query(
       `SELECT a.course_id, c.course_name,
               ROUND(AVG(s.grade), 2) AS average,
               COUNT(s.submission_id) AS submissions
@@ -87,7 +87,7 @@ router.get('/student/:id/averages', authenticate, async (req, res) => {
        GROUP BY a.course_id, c.course_name`,
       [req.params.id]
     );
-    res.json(result.rows);
+    res.json(rows);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
