@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fi Wi VLE - Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f2f5; display: flex; height: 100vh; overflow: hidden; }
+        .hidden { display: none !important; }
+        
+        /* Auth Screen */
+        #auth-section { margin: auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 350px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        #auth-section button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        /* Dashboard Layout */
+        #dashboard-container { display: flex; width: 100%; }
+        nav { width: 260px; background: #1c1e21; color: white; padding: 25px; display: flex; flex-direction: column; }
+        nav h2 { color: #1a73e8; margin-bottom: 30px; font-size: 1.5em; }
+        nav ul { list-style: none; padding: 0; flex-grow: 1; }
+        nav li { padding: 15px; cursor: pointer; border-radius: 10px; margin-bottom: 8px; transition: 0.2s; }
+        nav li:hover { background: #303338; }
+        
+        main { flex-grow: 1; padding: 40px; overflow-y: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        
+        /* Rounded Course Boxes */
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; }
+        .course-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eef0f2; text-align: center; transition: transform 0.2s; }
+        .course-card:hover { transform: translateY(-5px); }
+        .course-card h4 { margin: 0; color: #1a73e8; font-size: 1.3em; }
+        .course-card p { color: #5f6368; margin-top: 10px; }
+
+        .logout-btn { background: #d93025; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-section">
+        <h2 style="text-align: center;">Fi Wi VLE</h2>
+        <input type="text" id="user_id" placeholder="User ID">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Sign In</button>
+    </div>
+
+    <div id="dashboard-container" class="hidden">
+        <nav>
+            <h2>Fi Wi VLE</h2>
+            <ul>
+                <li onclick="location.reload()">🏠 Dashboard</li>
+                <li>📚 My Assignments</li>
+                <li>📊 My Averages</li>
+            </ul>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </nav>
+
+        <main>
+            <div class="header">
+                <div>
+                    <h1 id="dash-name" style="margin:0;">Welcome</h1>
+                    <span id="dash-id" style="color: #70757a;">ID: --</span>
+                </div>
+                <div id="user-role" style="background: #1a73e8; color: white; padding: 6px 18px; border-radius: 25px; font-size: 0.9em;">Student</div>
+            </div>
+            <h3>My Enrolled Courses</h3>
+            <div class="course-grid" id="course-container"></div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
