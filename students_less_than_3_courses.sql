@@ -1,0 +1,1 @@
+SELECT * FROM comp3161_final_proj.students_less_than_3_courses;

@@ -1,0 +1,1 @@
+SELECT * FROM comp3161_final_proj.num_members_in_each_course_view;

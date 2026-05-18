@@ -3,15 +3,13 @@ const router  = express.Router();
 const pool    = require('../db');
 const { authenticate } = require('../middleware/authMiddleware');
 
-// ─── GET THREADS ──────────────────────────────────────────────────────────────
-
-// GET /api/threads/forum/:forumId  –  All top-level threads in a forum
-router.get('/forum/:forumId', authenticate, async (req, res) => {
+// ─── GET ALL THREADS IN A FORUM ───────────────────────────────────────────────
+router.get('/forums/:forumId/threads', authenticate, async (req, res) => {
   const { forumId } = req.params;
   try {
     const [threads] = await pool.query(
       `SELECT dt.*, u.name AS author_name
-       FROM Discussion_Thread dt
+       FROM discussion_thread dt
        JOIN \`User\` u ON dt.user_id = u.user_id
        WHERE dt.forum_id = ? AND dt.parent_thread_id IS NULL
        ORDER BY dt.created_date DESC`,
@@ -24,22 +22,21 @@ router.get('/forum/:forumId', authenticate, async (req, res) => {
   }
 });
 
-// GET /api/threads/:threadId  –  A single thread and all nested replies (recursive)
+// ─── GET A SINGLE THREAD WITH ALL NESTED REPLIES ─────────────────────────────
 router.get('/:threadId', authenticate, async (req, res) => {
   const { threadId } = req.params;
   try {
-    // Recursive CTE: requires MySQL 8.0+
     const [rows] = await pool.query(
       `WITH RECURSIVE thread_tree AS (
-         SELECT dt.*, u.name AS author_name
-         FROM Discussion_Thread dt
-         JOIN \`User\` u ON dt.user_id = u.user_id
-         WHERE dt.thread_id = ?
-         UNION ALL
-         SELECT dt.*, u.name AS author_name
-         FROM Discussion_Thread dt
-         JOIN \`User\` u ON dt.user_id = u.user_id
-         JOIN thread_tree tt ON dt.parent_thread_id = tt.thread_id
+          SELECT dt.*, u.name AS author_name
+          FROM discussion_thread dt
+          JOIN \`User\` u ON dt.user_id = u.user_id
+          WHERE dt.thread_id = ?
+          UNION ALL
+          SELECT dt.*, u.name AS author_name
+          FROM discussion_thread dt
+          JOIN \`User\` u ON dt.user_id = u.user_id
+          JOIN thread_tree tt ON dt.parent_thread_id = tt.thread_id
        )
        SELECT * FROM thread_tree ORDER BY created_date`,
       [threadId]
@@ -54,57 +51,63 @@ router.get('/:threadId', authenticate, async (req, res) => {
   }
 });
 
-// ─── CREATE THREAD ────────────────────────────────────────────────────────────
-
-// POST /api/threads/forum/:forumId  –  Any authenticated user can start a new top-level thread
-router.post('/forum/:forumId', authenticate, async (req, res) => {
-  const { forumId }     = req.params;
+// ─── CREATE THREAD (MATCHES YOUR SCHEMA PERFECTLY) ───────────────────────────
+router.post('/forums/:forumId/threads', authenticate, async (req, res) => {
+  const { forumId }        = req.params;
   const { title, content } = req.body;
-  const user_id         = req.user.user_id;
+  
+  // Guard checking for the user object from the authentication token payload
+  const user_id = req.user ? req.user.user_id : null; 
 
   if (!title || !content) {
     return res.status(400).json({ error: 'title and content are required' });
   }
 
   try {
-    // Derive course_id from the forum
-    const [forum] = await pool.query(
-      'SELECT course_id FROM Discussion_Forum WHERE forum_id = ?',
+    // 1. Fixed table name to lowercase 'discussion_forum'
+    const [forumRows] = await pool.query(
+      'SELECT course_id FROM discussion_forum WHERE forum_id = ?',
       [forumId]
     );
-    if (forum.length === 0) {
-      return res.status(404).json({ error: 'Forum not found' });
+    
+    if (!forumRows || forumRows.length === 0) {
+      return res.status(404).json({ error: `Forum with ID ${forumId} not found.` });
     }
 
-    const course_id = forum[0].course_id;
-    const [result]  = await pool.query(
-      `INSERT INTO Discussion_Thread
-         (course_id, forum_id, user_id, title, content)
-       VALUES ( ?, ?, ?, ?, ?)`,
+    const course_id = forumRows[0].course_id;
+
+    // 2. Fixed query table destination name to lowercase 'discussion_thread'
+    const [result] = await pool.query(
+      `INSERT INTO discussion_thread 
+          (course_id, forum_id, user_id, title, content, created_date) 
+       VALUES (?, ?, ?, ?, ?, NOW())`,
       [course_id, forumId, user_id, title, content]
     );
-    res.status(201).json({ message: 'Thread created successfully', thread_id: result.insertId });
+    
+    return res.status(201).json({ 
+      message: 'Thread created successfully', 
+      thread_id: result.insertId 
+    });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to create thread' });
+    console.error("Database Error details:", err);
+    return res.status(500).json({ error: err.message });
   }
 });
 
-// Replying to a thread
-
-// POST /api/threads/:threadId/reply  –  Reply to any thread 
+// ─── REPLY TO A THREAD ───────────────────────────────────────────────────────
+router.post('/:threadId/reply', authenticate, async (req, res) => {
   const { threadId } = req.params;
   const { content }  = req.body;
-  const user_id      = req.user.user_id;
+  const user_id      = req.user ? req.user.user_id : null;
 
   if (!content) {
     return res.status(400).json({ error: 'content is required' });
   }
 
   try {
-    // Inherit forum_id and course_id from the parent thread
     const [parent] = await pool.query(
-      'SELECT thread_id, forum_id, course_id FROM Discussion_Thread WHERE thread_id = ?',
+      'SELECT forum_id, course_id FROM discussion_thread WHERE thread_id = ?',
       [threadId]
     );
     if (parent.length === 0) {
@@ -113,9 +116,9 @@ router.post('/forum/:forumId', authenticate, async (req, res) => {
 
     const { forum_id, course_id } = parent[0];
     const [result] = await pool.query(
-      `INSERT INTO Discussion_Thread
-         (course_id, forum_id, user_id, threadId, content)
-       VALUES (?, ?, ?, ?, NULL, ?)`,
+      `INSERT INTO discussion_thread 
+          (course_id, forum_id, user_id, parent_thread_id, content, created_date) 
+       VALUES (?, ?, ?, ?, ?, NOW())`,
       [course_id, forum_id, user_id, threadId, content]
     );
     res.status(201).json({ message: 'Reply added successfully', thread_id: result.insertId });
@@ -123,5 +126,6 @@ router.post('/forum/:forumId', authenticate, async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Failed to add reply' });
   }
+});
 
 module.exports = router;
