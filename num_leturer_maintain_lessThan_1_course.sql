@@ -1,0 +1,1 @@
+SELECT * FROM comp3161_final_proj.num_lecturer_maintainslessthan1_view;

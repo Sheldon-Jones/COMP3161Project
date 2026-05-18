@@ -1,0 +1,1 @@
+SELECT * FROM comp3161_final_proj.course_count_view;
