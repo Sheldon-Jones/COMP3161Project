@@ -22,9 +22,10 @@ Constraints enforced:
 
 import random
 import re
-import hashlib
+import bcrypt
 from datetime import date, timedelta, datetime
 from faker import Faker
+
 
 # ── CONFIGURATION ─────────────────────────────────────────────────────────────
 OUTPUT_FILE   = "data.sql"
@@ -51,8 +52,10 @@ UNIVERSITY_DOMAINS = [
 def rand_date(start: date, end: date) -> date:
     return start + timedelta(days=random.randint(0, (end - start).days))
 
+SHARED_HASH = bcrypt.hashpw(b'password123', bcrypt.gensalt(rounds=4)).decode()
+
 def hash_pw(raw: str) -> str:
-    return hashlib.md5(raw.encode()).hexdigest()[:50]
+    return SHARED_HASH
 
 _seen_emails: set = set()
 
